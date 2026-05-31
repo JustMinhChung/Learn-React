@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Portal - Quản lý Nhân sự</title>
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- CSS stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="employees">
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-logo">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <h2>HR Portal</h2>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <a href="index.html" class="menu-item" data-page="dashboard">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+                    <span>Bảng điều khiển</span>
+                </a>
+                <a href="employees.html" class="menu-item" data-page="employees">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <span>Quản lý Nhân sự</span>
+                </a>
+                <a href="departments.html" class="menu-item" data-page="departments">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"/><path d="M4 10h16"/><path d="M4 14h16"/><path d="M4 18h16"/></svg>
+                    <span>Quản lý Phòng ban</span>
+                </a>
+                <a href="request-leave.html" class="menu-item" data-page="request-leave">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <span>Xin nghỉ phép</span>
+                </a>
+                <a href="approve-leave.html" class="menu-item" data-page="approve-leave">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                    <span>Duyệt phép</span>
+                    <span class="badge badge-pending-count" id="pending-badge">0</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile-summary">
+                    <div class="avatar-circle">AD</div>
+                    <div class="user-info">
+                        <span class="user-name">Quản trị viên</span>
+                        <span class="user-role">HR Manager</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Wrapper -->
+        <div class="main-wrapper">
+            <!-- Header -->
+            <header class="main-header">
+                <div class="header-left">
+                    <h1 id="page-title">Quản lý Nhân sự</h1>
+                    <p class="current-date" id="live-date">Thứ hai, 24 tháng 5, 2026</p>
+                </div>
+                <div class="header-right">
+                    <!-- Dark/Light Theme Toggle -->
+                    <button class="theme-toggle" id="theme-btn" aria-label="Toggle Theme">
+                        <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                        <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    </button>
+
+                    <!-- Notifications -->
+                    <div class="notifications-wrapper">
+                        <button class="notification-btn" id="notif-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                            <span class="notif-dot"></span>
+                        </button>
+                        <div class="notif-dropdown" id="notif-dropdown">
+                            <div class="notif-header">
+                                <h3>Thông báo</h3>
+                                <button id="clear-notif">Xóa tất cả</button>
+                            </div>
+                            <div class="notif-list" id="notif-list">
+                                <div class="notif-empty">Không có thông báo mới</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content Container -->
+            <main class="content-container">
+                <!-- TAB: EMPLOYEES -->
+                <section class="tab-content active" id="tab-employees">
+                    <div class="action-bar">
+                        <div class="search-filter-group">
+                            <div class="search-box">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                <input type="text" id="search-emp" placeholder="Tìm kiếm nhân viên theo tên, email, chức vụ...">
+                            </div>
+                            
+                            <select id="filter-dept">
+                                <option value="">Tất cả Phòng ban</option>
+                            </select>
+
+                            <select id="filter-status">
+                                <option value="">Tất cả Trạng thái</option>
+                                <option value="Đang làm việc">Đang làm việc</option>
+                                <option value="Nghỉ phép">Nghỉ phép</option>
+                                <option value="Đã nghỉ việc">Đã nghỉ việc</option>
+                            </select>
+                        </div>
+
+                        <button class="btn btn-primary" id="btn-add-employee">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Thêm nhân viên
+                        </button>
+                    </div>
+
+                    <!-- Employees Table Card -->
+                    <div class="dashboard-card table-container">
+                        <table class="employees-table">
+                            <thead>
+                                <tr>
+                                    <th>Nhân viên</th>
+                                    <th>Thông tin liên hệ</th>
+                                    <th>Phòng ban</th>
+                                    <th>Chức vụ</th>
+                                    <th>Ngày vào làm</th>
+                                    <th>Trạng thái</th>
+                                    <th class="text-right">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="employees-tbody">
+                                <!-- Dynamic employee rows -->
+                            </tbody>
+                        </table>
+                        <div class="empty-state" id="emp-empty-state">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            <p>Không tìm thấy nhân viên nào khớp với điều kiện.</p>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD / EDIT EMPLOYEE -->
+    <div class="modal-overlay" id="employee-modal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="modal-title">Thêm nhân viên mới</h3>
+                <button class="close-modal-btn" id="close-emp-modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="employee-form">
+                    <input type="hidden" id="emp-form-id">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="emp-name">Họ và tên *</label>
+                            <input type="text" id="emp-name" placeholder="Nguyễn Văn A" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="emp-gender">Giới tính</label>
+                            <select id="emp-gender">
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                                <option value="Khác">Khác</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="emp-email">Email công việc *</label>
+                            <input type="email" id="emp-email" placeholder="example@company.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="emp-phone">Số điện thoại *</label>
+                            <input type="tel" id="emp-phone" placeholder="09xxxxxxxx" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="emp-dept">Phòng ban *</label>
+                            <select id="emp-dept" required>
+                                <option value="">-- Chọn phòng ban --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="emp-role">Chức vụ *</label>
+                            <select id="emp-role" required>
+                                <option value="">-- Chọn chức vụ --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="emp-join-date">Ngày vào làm *</label>
+                            <input type="date" id="emp-join-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="emp-salary">Lương cơ bản (VND) *</label>
+                            <input type="number" id="emp-salary" min="0" placeholder="15000000" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="emp-total-leaves">Tổng số ngày phép được nghỉ / năm</label>
+                            <input type="number" id="emp-total-leaves" min="0" max="30" value="12">
+                        </div>
+                        <div class="form-group">
+                            <label for="emp-status">Trạng thái công việc</label>
+                            <select id="emp-status">
+                                <option value="Đang làm việc">Đang làm việc</option>
+                                <option value="Nghỉ phép">Nghỉ phép</option>
+                                <option value="Đã nghỉ việc">Đã nghỉ việc</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" id="btn-cancel-emp">Hủy bỏ</button>
+                        <button type="submit" class="btn btn-primary" id="btn-save-emp">Lưu nhân viên</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: VIEW EMPLOYEE PROFILE DETAIL -->
+    <div class="modal-overlay" id="profile-modal">
+        <div class="modal-box profile-modal-box">
+            <div class="modal-header header-border-none">
+                <h3>Chi tiết hồ sơ nhân viên</h3>
+                <button class="close-modal-btn" id="close-profile-modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="modal-body pt-0" id="profile-modal-body">
+                <!-- Dynamically loaded profile card will go here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Banner -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Main JavaScript Logic -->
+    <script src="app.js"></script>
+</body>
+</html>
