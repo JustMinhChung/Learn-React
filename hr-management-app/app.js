@@ -2,196 +2,17 @@
    HR PORTAL APPLICATION CORE LOGIC - MULTI-PAGE APPLICATION (MPA)
    ========================================================================== */
 
-// --- INITIAL MOCK DATA ---
-const DEFAULT_EMPLOYEES = [
-    {
-        id: "NV001",
-        name: "Nguyễn Minh Tuấn",
-        gender: "Nam",
-        email: "tuan.nm@company.com",
-        phone: "0912345678",
-        dept: "Kỹ thuật",
-        role: "Kỹ sư Backend chính",
-        joinDate: "2023-01-15",
-        salary: 26000000,
-        totalLeaves: 12,
-        remainingLeaves: 8,
-        status: "Đang làm việc"
-    },
-    {
-        id: "NV002",
-        name: "Trần Thị Mai",
-        gender: "Nữ",
-        email: "mai.tt@company.com",
-        phone: "0987654321",
-        dept: "Nhân sự",
-        role: "Trưởng phòng HR",
-        joinDate: "2022-05-10",
-        salary: 32000000,
-        totalLeaves: 15,
-        remainingLeaves: 12,
-        status: "Đang làm việc"
-    },
-    {
-        id: "NV003",
-        name: "Lê Hoàng Nam",
-        gender: "Nam",
-        email: "nam.lh@company.com",
-        phone: "0905123456",
-        dept: "Kỹ thuật",
-        role: "Frontend Developer",
-        joinDate: "2024-03-01",
-        salary: 19500000,
-        totalLeaves: 12,
-        remainingLeaves: 7,
-        status: "Nghỉ phép"
-    },
-    {
-        id: "NV004",
-        name: "Phạm Thanh Hương",
-        gender: "Nữ",
-        email: "huong.pt@company.com",
-        phone: "0977889900",
-        dept: "Marketing",
-        role: "Chuyên viên Content",
-        joinDate: "2023-11-20",
-        salary: 16000000,
-        totalLeaves: 12,
-        remainingLeaves: 11,
-        status: "Đang làm việc"
-    },
-    {
-        id: "NV005",
-        name: "Đặng Anh Tú",
-        gender: "Nam",
-        email: "tu.da@company.com",
-        phone: "0933445566",
-        dept: "Thiết kế",
-        role: "UI/UX Designer",
-        joinDate: "2024-02-15",
-        salary: 22000000,
-        totalLeaves: 12,
-        remainingLeaves: 9,
-        status: "Đang làm việc"
-    },
-    {
-        id: "NV006",
-        name: "Bùi Văn Hùng",
-        gender: "Nam",
-        email: "hung.bv@company.com",
-        phone: "0966554433",
-        dept: "Kinh doanh",
-        role: "Trưởng nhóm Kinh doanh",
-        joinDate: "2022-09-01",
-        salary: 28000000,
-        totalLeaves: 12,
-        remainingLeaves: 0,
-        status: "Đã nghỉ việc"
-    }
-];
+const API_BASE = 'http://localhost:3000/api';
 
-const DEFAULT_LEAVE_REQUESTS = [
-    {
-        id: "LR001",
-        empId: "NV003",
-        empName: "Lê Hoàng Nam",
-        empDept: "Kỹ thuật",
-        type: "Nghỉ ốm",
-        startDate: "2026-05-24",
-        endDate: "2026-05-26",
-        days: 3,
-        reason: "Sốt siêu vi, bác sĩ chỉ định nghỉ ngơi tại nhà.",
-        status: "Đã duyệt",
-        submittedAt: "2026-05-23 09:30"
-    },
-    {
-        id: "LR002",
-        empId: "NV001",
-        empName: "Nguyễn Minh Tuấn",
-        empDept: "Kỹ thuật",
-        type: "Nghỉ phép năm",
-        startDate: "2026-05-28",
-        endDate: "2026-05-30",
-        days: 3,
-        reason: "Giải quyết công việc cá nhân ở quê.",
-        status: "Chờ duyệt",
-        submittedAt: "2026-05-24 08:15"
-    },
-    {
-        id: "LR003",
-        empId: "NV004",
-        empName: "Phạm Thanh Hương",
-        empDept: "Marketing",
-        type: "Nghỉ phép năm",
-        startDate: "2026-06-10",
-        endDate: "2026-06-12",
-        days: 3,
-        reason: "Nghỉ phép hè du lịch cùng gia đình.",
-        status: "Chờ duyệt",
-        submittedAt: "2026-05-24 14:45"
-    }
-];
-
-const DEFAULT_ACTIVITIES = [
-    {
-        id: "act-1",
-        type: "success",
-        text: "Yêu cầu nghỉ phép của <strong>Lê Hoàng Nam</strong> đã được phê duyệt.",
-        time: "Hôm qua lúc 17:00"
-    },
-    {
-        id: "act-2",
-        type: "info",
-        text: "Nhân viên mới <strong>Đặng Anh Tú</strong> được thêm vào phòng Thiết kế.",
-        time: "3 ngày trước"
-    },
-    {
-        id: "act-3",
-        type: "warning",
-        text: "Hệ thống ghi nhận <strong>Nguyễn Minh Tuấn</strong> gửi yêu cầu nghỉ phép mới.",
-        time: "Hôm nay lúc 08:15"
-    }
-];
-
-const DEFAULT_ROLES = [
-    { id: "CV001", name: "Kỹ sư Backend chính", dept: "Kỹ thuật", desc: "Phát triển hệ thống máy chủ và API" },
-    { id: "CV002", name: "Trưởng phòng HR", dept: "Nhân sự", desc: "Quản lý tuyển dụng và chính sách nhân sự" },
-    { id: "CV003", name: "Frontend Developer", dept: "Kỹ thuật", desc: "Xây dựng giao diện ứng dụng web" },
-    { id: "CV004", name: "Chuyên viên Content", dept: "Marketing", desc: "Lập kế hoạch và sản xuất nội dung" },
-    { id: "CV005", name: "UI/UX Designer", dept: "Thiết kế", desc: "Thiết kế trải nghiệm và giao diện người dùng" },
-    { id: "CV006", name: "Trưởng nhóm Kinh doanh", dept: "Kinh doanh", desc: "Định hướng mục tiêu doanh số bán hàng" }
-];
-
-const DEFAULT_DEPARTMENTS = [
-    { id: "PB001", name: "Kỹ thuật", desc: "Chịu trách nhiệm phát triển sản phẩm và giải pháp kỹ thuật." },
-    { id: "PB002", name: "Nhân sự", desc: "Quản lý tuyển dụng, đào tạo và phúc lợi nhân viên." },
-    { id: "PB003", name: "Marketing", desc: "Xây dựng chiến lược truyền thông và thương hiệu." },
-    { id: "PB004", name: "Kinh doanh", desc: "Phát triển doanh số và chăm sóc khách hàng." },
-    { id: "PB005", name: "Thiết kế", desc: "Thiết kế giao diện và trải nghiệm người dùng." }
-];
-
-// --- APP STATE & LOCALSTORAGE WRAPPING ---
-class AppStore {
-    static get(key, defaultValue) {
-        const data = localStorage.getItem(`hr_portal_${key}`);
-        return data ? JSON.parse(data) : defaultValue;
-    }
-
-    static set(key, value) {
-        localStorage.setItem(`hr_portal_${key}`, JSON.stringify(value));
-    }
-}
-
-// State management loaded from localStorage
-let employees = AppStore.get("employees", DEFAULT_EMPLOYEES);
-let leaveRequests = AppStore.get("leave_requests", DEFAULT_LEAVE_REQUESTS);
-let activities = AppStore.get("activities", DEFAULT_ACTIVITIES);
-let roles = AppStore.get("roles", DEFAULT_ROLES);
-let departments = AppStore.get("departments", DEFAULT_DEPARTMENTS);
-let notifications = AppStore.get("notifications", [
-    { id: "n-1", text: "Yêu cầu phép mới từ Nguyễn Minh Tuấn đang chờ duyệt.", time: "08:15", read: false },
-    { id: "n-2", text: "Yêu cầu phép mới từ Phạm Thanh Hương đang chờ duyệt.", time: "14:45", read: false }
-]);
+// --- GLOBAL STATE (Loaded dynamically from SQLite Backend API) ---
+let employees = [];
+let leaveRequests = [];
+let activities = [];
+let roles = [];
+let departments = [];
+let notifications = [];
+let empCurrentPage = 1;
+const empItemsPerPage = 20;
 
 // Determine active page from body attribute
 const currentPage = document.body.getAttribute("data-page") || "dashboard";
@@ -311,7 +132,38 @@ document.addEventListener("DOMContentLoaded", () => {
     setupEventListeners();
 });
 
-function initApp() {
+async function loadAllData() {
+    try {
+        const [empRes, leaveRes, actRes, roleRes, deptRes] = await Promise.all([
+            fetch(`${API_BASE}/employees`),
+            fetch(`${API_BASE}/leave-requests`),
+            fetch(`${API_BASE}/activities`),
+            fetch(`${API_BASE}/roles`),
+            fetch(`${API_BASE}/departments`)
+        ]);
+        
+        if (!empRes.ok || !leaveRes.ok || !actRes.ok || !roleRes.ok || !deptRes.ok) {
+            throw new Error("Mất kết nối đến cơ sở dữ liệu backend!");
+        }
+
+        employees = await empRes.json();
+        leaveRequests = await leaveRes.json();
+        activities = await actRes.json();
+        roles = await roleRes.json();
+        departments = await deptRes.json();
+        
+        // Mock static notifications
+        notifications = [
+            { id: "n-1", text: "Yêu cầu phép mới từ Nguyễn Minh Tuấn đang chờ duyệt.", time: "08:15", read: false },
+            { id: "n-2", text: "Yêu cầu phép mới từ Phạm Thanh Hương đang chờ duyệt.", time: "14:45", read: false }
+        ];
+    } catch (error) {
+        console.error("Error loading data from API:", error);
+        showToast("Không thể kết nối đến máy chủ API backend! Hãy kiểm tra server.", "error");
+    }
+}
+
+async function initApp() {
     // 1. Live date
     updateLiveDate();
     
@@ -329,7 +181,10 @@ function initApp() {
         }
     });
 
-    // 4. Update the sidebar approvals pending badge on ALL pages
+    // 4. Fetch all data asynchronously from the high-performance SQLite backend!
+    await loadAllData();
+
+    // 5. Update the sidebar approvals pending badge on ALL pages
     const pendingApprovalsCount = leaveRequests.filter(r => r.status === "Chờ duyệt").length;
     if (DOM.pendingBadge) {
         if (pendingApprovalsCount > 0) {
@@ -340,10 +195,10 @@ function initApp() {
         }
     }
 
-    // 5. Populate all department dropdowns before rendering pages
+    // 6. Populate all department dropdowns before rendering pages
     populateDepartmentSelects();
 
-    // 6. Initialize page-specific data
+    // 7. Initialize page-specific data
     switch(currentPage) {
         case "dashboard":
             renderDashboard();
@@ -367,7 +222,7 @@ function initApp() {
             break;
     }
 
-    // 6. Render notification dropdown counts
+    // 8. Render notification dropdown counts
     renderNotifications();
 }
 
@@ -409,7 +264,6 @@ function setupEventListeners() {
         DOM.clearNotifBtn.addEventListener("click", (e) => {
             e.stopPropagation();
             notifications = [];
-            AppStore.set("notifications", notifications);
             renderNotifications();
             showToast("Đã xóa tất cả thông báo.", "info");
         });
@@ -419,9 +273,9 @@ function setupEventListeners() {
     
     // Page: EMPLOYEES
     if (currentPage === "employees") {
-        if (DOM.searchEmpInput) DOM.searchEmpInput.addEventListener("input", renderEmployeeTable);
-        if (DOM.filterDeptSelect) DOM.filterDeptSelect.addEventListener("change", renderEmployeeTable);
-        if (DOM.filterStatusSelect) DOM.filterStatusSelect.addEventListener("change", renderEmployeeTable);
+        if (DOM.searchEmpInput) DOM.searchEmpInput.addEventListener("input", () => { empCurrentPage = 1; renderEmployeeTable(); });
+        if (DOM.filterDeptSelect) DOM.filterDeptSelect.addEventListener("change", () => { empCurrentPage = 1; renderEmployeeTable(); });
+        if (DOM.filterStatusSelect) DOM.filterStatusSelect.addEventListener("change", () => { empCurrentPage = 1; renderEmployeeTable(); });
 
         // Modal triggers
         if (DOM.btnAddEmployee) DOM.btnAddEmployee.addEventListener("click", () => openEmployeeModal());
@@ -447,7 +301,6 @@ function setupEventListeners() {
     if (currentPage === "departments") {
         if (DOM.searchDeptInput) DOM.searchDeptInput.addEventListener("input", renderDepartmentTable);
         if (DOM.btnAddDepartment) DOM.btnAddDepartment.addEventListener("click", () => openDepartmentModal());
-        if (DOM.btnAddRoleInDept) DOM.btnAddRoleInDept.addEventListener("click", () => openRoleModal());
         if (DOM.closeDepartmentModalBtn) DOM.closeDepartmentModalBtn.addEventListener("click", closeDepartmentModal);
         if (DOM.btnCancelDepartment) DOM.btnCancelDepartment.addEventListener("click", closeDepartmentModal);
         if (DOM.departmentForm) DOM.departmentForm.addEventListener("submit", handleDepartmentFormSubmit);
@@ -520,8 +373,7 @@ function renderDepartmentTable() {
     }
 
     filtered.forEach(dept => {
-        const activeEmployees = employees.filter(e => e.dept === dept.name).length;
-        const linkedRoles = roles.filter(r => r.dept === dept.name).length;
+        const activeEmployees = employees.filter(e => e.dept === dept.name && e.status !== 'Đã nghỉ việc').length;
 
         const row = document.createElement("tr");
         row.innerHTML = `
@@ -533,9 +385,6 @@ function renderDepartmentTable() {
                 <div class="table-actions">
                     <button class="action-icon-btn btn-add-hover" onclick="openRoleModal(null, '${dept.name}')" title="Thêm chức vụ vào phòng ban này">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                    </button>
-                    <button class="action-icon-btn btn-view-hover" onclick="viewEmployeesInDepartment('${dept.name}')" title="Xem nhân sự">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     </button>
                     <button class="action-icon-btn btn-edit-hover" onclick="editDepartment('${dept.id}')" title="Chỉnh sửa">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -573,7 +422,7 @@ function closeDepartmentModal() {
     if (DOM.departmentModal) DOM.departmentModal.classList.remove("open");
 }
 
-function handleDepartmentFormSubmit(e) {
+async function handleDepartmentFormSubmit(e) {
     e.preventDefault();
 
     const formId = DOM.departmentFormId.value;
@@ -597,64 +446,65 @@ function handleDepartmentFormSubmit(e) {
         return;
     }
 
-    if (formId) {
-        const deptIndex = departments.findIndex(d => d.id === formId);
-        if (deptIndex > -1) {
-            const oldName = departments[deptIndex].name;
-            departments[deptIndex] = { ...departments[deptIndex], name, desc };
-
-            employees.forEach(emp => {
-                if (emp.dept === oldName) emp.dept = name;
+    try {
+        let response;
+        if (formId) {
+            // PUT to API
+            response = await fetch(`${API_BASE}/departments/${formId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, desc })
             });
-            roles.forEach(role => {
-                if (role.dept === oldName) role.dept = name;
+        } else {
+            // POST to API
+            response = await fetch(`${API_BASE}/departments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, desc })
             });
-
-            AppStore.set("employees", employees);
-            AppStore.set("roles", roles);
-            logActivity("info", `Phòng ban <strong>${oldName}</strong> đã được đổi tên thành <strong>${name}</strong>.`);
-            showToast("Cập nhật phòng ban thành công!", "success");
         }
-    } else {
-        const nextIdNum = Math.max(...departments.map(d => parseInt(d.id.replace("PB", ""))), 0) + 1;
-        const newId = `PB${String(nextIdNum).padStart(3, "0")}`;
-        departments.push({ id: newId, name, desc });
-        logActivity("success", `Phòng ban mới <strong>${name}</strong> đã được thêm vào hệ thống.`);
-        showToast("Thêm phòng ban mới thành công!", "success");
-    }
 
-    AppStore.set("departments", departments);
-    populateDepartmentSelects();
-    closeDepartmentModal();
-    renderDepartmentTable();
-    if (currentPage === "employees") renderEmployeeTable();
-    if (currentPage === "roles") renderRoleTable();
+        if (!response.ok) {
+            const errData = await response.json();
+            throw new Error(errData.error || "Giao dịch không thành công.");
+        }
+
+        showToast(formId ? "Cập nhật phòng ban thành công!" : "Thêm phòng ban mới thành công!", "success");
+        closeDepartmentModal();
+        await loadAllData();
+        renderDepartmentTable();
+    } catch (err) {
+        showToast(err.message, "error");
+    }
 }
 
 window.editDepartment = function(deptId) {
     openDepartmentModal(deptId);
 };
 
-window.deleteDepartment = function(deptId) {
+window.deleteDepartment = async function(deptId) {
     const dept = departments.find(d => d.id === deptId);
     if (!dept) return;
-
-    const activeEmployees = employees.filter(e => e.dept === dept.name).length;
-    const linkedRoles = roles.filter(r => r.dept === dept.name).length;
-    if (activeEmployees > 0 || linkedRoles > 0) {
-        showToast(`Không thể xóa phòng ban này vì còn ${activeEmployees} nhân viên và ${linkedRoles} chức vụ liên kết.`, "error");
-        return;
-    }
 
     const confirmDelete = confirm(`Bạn có chắc chắn muốn xóa phòng ban "${dept.name}"?`);
     if (!confirmDelete) return;
 
-    departments = departments.filter(d => d.id !== deptId);
-    AppStore.set("departments", departments);
-    populateDepartmentSelects();
-    renderDepartmentTable();
-    showToast(`Đã xóa phòng ban ${dept.name}.`, "warning");
-    logActivity("danger", `Phòng ban <strong>${dept.name}</strong> đã bị xóa khỏi hệ thống.`);
+    try {
+        const response = await fetch(`${API_BASE}/departments/${deptId}`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) {
+            const errData = await response.json();
+            throw new Error(errData.error || "Không thể xóa phòng ban.");
+        }
+
+        showToast(`Đã xóa phòng ban ${dept.name}.`, "warning");
+        await loadAllData();
+        renderDepartmentTable();
+    } catch (err) {
+        showToast(err.message, "error");
+    }
 }
 
 // --- DYNAMIC RENDERING: DASHBOARD ---
@@ -691,17 +541,16 @@ function renderDepartmentChart(totalCount) {
     DOM.deptDistribution.innerHTML = "";
     
     const activeEmployees = employees.filter(e => e.status !== "Đã nghỉ việc");
-    const deptList = departments.map(d => d.name);
     
-    deptList.forEach(dept => {
-        const count = activeEmployees.filter(e => e.dept === dept).length;
+    departments.forEach(dept => {
+        const count = activeEmployees.filter(e => e.dept === dept.name).length;
         const percentage = totalCount > 0 ? Math.round((count / totalCount) * 100) : 0;
         
         const item = document.createElement("div");
         item.className = "dept-progress-item";
         item.innerHTML = `
             <div class="dept-info-row">
-                <span class="dept-name">${dept}</span>
+                <span class="dept-name">${dept.name}</span>
                 <span class="dept-count">${count} nhân sự (${percentage}%)</span>
             </div>
             <div class="dept-bar-bg">
@@ -773,21 +622,33 @@ function renderEmployeeTable() {
         return matchesQuery && matchesDept && matchesStatus;
     });
 
+    const pagEl = document.getElementById("emp-pagination");
+
     if (filtered.length === 0) {
         if (DOM.empEmptyState) DOM.empEmptyState.style.display = "flex";
+        if (pagEl) pagEl.innerHTML = "";
         return;
     } else {
         if (DOM.empEmptyState) DOM.empEmptyState.style.display = "none";
     }
 
-    filtered.forEach(emp => {
+    const totalPages = Math.ceil(filtered.length / empItemsPerPage);
+    if (empCurrentPage > totalPages) empCurrentPage = totalPages || 1;
+
+    const start = (empCurrentPage - 1) * empItemsPerPage;
+    const end = empCurrentPage * empItemsPerPage;
+    const pageEmployees = filtered.slice(start, end);
+
+    pageEmployees.forEach((emp, index) => {
         const initials = emp.name.split(" ").slice(-2).map(n => n[0]).join("").toUpperCase();
         let statusClass = "status-working";
         if (emp.status === "Nghỉ phép") statusClass = "status-leave";
         if (emp.status === "Đã nghỉ việc") statusClass = "status-resigned";
         
+        const globalIndex = start + index + 1;
         const row = document.createElement("tr");
         row.innerHTML = `
+            <td><strong>${globalIndex}</strong></td>
             <td>
                 <div class="employee-profile-cell">
                     <div class="employee-avatar">${initials}</div>
@@ -811,7 +672,7 @@ function renderEmployeeTable() {
             </td>
             <td><strong>${emp.dept}</strong></td>
             <td>${emp.role}</td>
-            <td>${formatDate(emp.joinDate)}</td>
+            <td>${formatDate(emp.join_date)}</td>
             <td><span class="status-badge ${statusClass}">${emp.status}</span></td>
             <td class="text-right">
                 <div class="table-actions">
@@ -829,6 +690,47 @@ function renderEmployeeTable() {
         `;
         DOM.employeesTbody.appendChild(row);
     });
+
+    renderEmployeePagination(filtered.length, totalPages, start, end);
+}
+
+function renderEmployeePagination(totalItems, totalPages, start, end) {
+    const pagEl = document.getElementById("emp-pagination");
+    if (!pagEl) return;
+
+    if (totalPages <= 1) {
+        pagEl.innerHTML = "";
+        return;
+    }
+
+    const currentEnd = Math.min(end, totalItems);
+    const infoText = `Hiển thị <strong>${start + 1}</strong> - <strong>${currentEnd}</strong> trong tổng số <strong>${totalItems}</strong> nhân sự`;
+
+    pagEl.innerHTML = `
+        <span style="font-size: 0.9rem; color: var(--text-secondary);">${infoText}</span>
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <button class="btn btn-sm" id="btn-prev-page" ${empCurrentPage === 1 ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>◀ Trước</button>
+            <span style="font-weight: 500;">Trang ${empCurrentPage} / ${totalPages}</span>
+            <button class="btn btn-sm" id="btn-next-page" ${empCurrentPage === totalPages ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>Sau ▶</button>
+        </div>
+    `;
+
+    const prevBtn = document.getElementById("btn-prev-page");
+    const nextBtn = document.getElementById("btn-next-page");
+
+    if (prevBtn && empCurrentPage > 1) {
+        prevBtn.addEventListener("click", () => {
+            empCurrentPage--;
+            renderEmployeeTable();
+        });
+    }
+
+    if (nextBtn && empCurrentPage < totalPages) {
+        nextBtn.addEventListener("click", () => {
+            empCurrentPage++;
+            renderEmployeeTable();
+        });
+    }
 }
 
 // --- EMPLOYEE MODAL & FORM LOGIC ---
@@ -855,9 +757,9 @@ function openEmployeeModal(empId = null) {
         DOM.inputEmpPhone.value = emp.phone;
         DOM.inputEmpDept.value = emp.dept;
         DOM.inputEmpRole.value = emp.role;
-        DOM.inputEmpJoinDate.value = emp.joinDate;
+        DOM.inputEmpJoinDate.value = emp.join_date;
         DOM.inputEmpSalary.value = emp.salary;
-        DOM.inputEmpTotalLeaves.value = emp.totalLeaves;
+        DOM.inputEmpTotalLeaves.value = emp.total_leaves;
         DOM.inputEmpStatus.value = emp.status;
     } else {
         // Create Mode
@@ -872,7 +774,7 @@ function closeEmployeeModal() {
     if (DOM.employeeModal) DOM.employeeModal.classList.remove("open");
 }
 
-function handleEmployeeFormSubmit(e) {
+async function handleEmployeeFormSubmit(e) {
     e.preventDefault();
     
     const formId = DOM.empFormId.value;
@@ -913,44 +815,38 @@ function handleEmployeeFormSubmit(e) {
         return;
     }
 
-    if (formId) {
-        // UPDATE Existing Employee
-        const empIndex = employees.findIndex(emp => emp.id === formId);
-        if (empIndex > -1) {
-            const oldTotal = employees[empIndex].totalLeaves;
-            const oldRemaining = employees[empIndex].remainingLeaves;
-            const diff = totalLeaves - oldTotal;
-            const remainingLeaves = Math.max(0, oldRemaining + diff);
-
-            employees[empIndex] = {
-                ...employees[empIndex],
-                name, gender, email, phone, dept, role, joinDate, salary, totalLeaves, remainingLeaves, status
-            };
-            
-            logActivity("info", `Hồ sơ nhân viên <strong>${name}</strong> (${formId}) đã được chỉnh sửa.`);
-            showToast("Cập nhật thông tin nhân viên thành công!", "success");
+    try {
+        let response;
+        const payload = { name, gender, email, phone, dept, role, join_date: joinDate, salary, total_leaves: totalLeaves, status };
+        
+        if (formId) {
+            // PUT request to API
+            response = await fetch(`${API_BASE}/employees/${formId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+        } else {
+            // POST request to API
+            response = await fetch(`${API_BASE}/employees`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
         }
-    } else {
-        // CREATE New Employee
-        const nextIdNum = Math.max(...employees.map(emp => parseInt(emp.id.replace("NV", "")))) + 1;
-        const newId = `NV${String(nextIdNum).padStart(3, "0")}`;
-        
-        const newEmp = {
-            id: newId,
-            name, gender, email, phone, dept, role, joinDate, salary,
-            totalLeaves,
-            remainingLeaves: totalLeaves,
-            status
-        };
-        
-        employees.push(newEmp);
-        logActivity("info", `Nhân viên mới <strong>${name}</strong> (${newId}) đã được thêm vào phòng ${dept}.`);
-        showToast(`Đã thêm nhân viên ${name} thành công!`, "success");
-    }
 
-    AppStore.set("employees", employees);
-    closeEmployeeModal();
-    renderEmployeeTable();
+        if (!response.ok) {
+            const errData = await response.json();
+            throw new Error(errData.error || "Giao dịch không thành công.");
+        }
+
+        showToast(formId ? "Cập nhật thông tin nhân viên thành công!" : "Đã thêm nhân viên thành công!", "success");
+        closeEmployeeModal();
+        await loadAllData();
+        renderEmployeeTable();
+    } catch (err) {
+        showToast(err.message, "error");
+    }
 }
 
 window.viewEmployeeDetail = function(empId) {
@@ -989,7 +885,7 @@ window.viewEmployeeDetail = function(empId) {
                 </div>
                 <div class="profile-detail-item">
                     <span class="profile-detail-label">Ngày Vào Làm</span>
-                    <span class="profile-detail-value">${formatDate(emp.joinDate)}</span>
+                    <span class="profile-detail-value">${formatDate(emp.join_date)}</span>
                 </div>
                 <div class="profile-detail-item">
                     <span class="profile-detail-label">Lương Cơ Bản</span>
@@ -997,58 +893,12 @@ window.viewEmployeeDetail = function(empId) {
                 </div>
                 <div class="profile-detail-item">
                     <span class="profile-detail-label">Phép năm còn lại</span>
-                    <span class="profile-detail-value" style="font-weight: 700; color: var(--color-primary);">${emp.remainingLeaves} / ${emp.totalLeaves} ngày</span>
+                    <span class="profile-detail-value" style="font-weight: 700; color: var(--color-primary);">${emp.remaining_leaves} / ${emp.total_leaves} ngày</span>
                 </div>
             </div>
         `;
     }
     
-    if (DOM.profileModal) DOM.profileModal.classList.add("open");
-};
-
-window.viewEmployeesInRole = function(roleName) {
-    showEmployeeList("Chức vụ", roleName);
-};
-
-window.viewEmployeesInDepartment = function(deptName) {
-    showEmployeeList("Phòng ban", deptName);
-};
-
-function showEmployeeList(type, value) {
-    const list = employees.filter(emp => {
-        if (type === "Chức vụ") return emp.role === value;
-        return emp.dept === value;
-    });
-
-    const title = `Nhân sự theo ${type.toLowerCase()}: ${value}`;
-    const subtitle = `${list.length} nhân sự${list.length === 0 ? "" : " đang hoạt động"}`;
-
-    if (DOM.profileModalBody) {
-        const rows = list.map(emp => {
-            const initials = emp.name.split(" ").slice(-2).map(n => n[0]).join("").toUpperCase();
-            return `
-                <div class="profile-list-item">
-                    <div class="profile-avatar-small">${initials}</div>
-                    <div>
-                        <strong>${emp.name}</strong>
-                        <p>${emp.id} • ${emp.role}</p>
-                    </div>
-                    <button class="btn btn-secondary" onclick="viewEmployeeDetail('${emp.id}')">Xem</button>
-                </div>
-            `;
-        }).join("");
-
-        DOM.profileModalBody.innerHTML = `
-            <div class="profile-card-header">
-                <h2>${title}</h2>
-                <p>${subtitle}</p>
-            </div>
-            <div class="profile-list-container" style="margin-top: 16px; display: grid; gap: 12px;">
-                ${rows.length > 0 ? rows : `<div class="notif-empty">Không có nhân sự trong mục này.</div>`}
-            </div>
-        `;
-    }
-
     if (DOM.profileModal) DOM.profileModal.classList.add("open");
 };
 
@@ -1056,7 +906,7 @@ window.editEmployee = function(empId) {
     openEmployeeModal(empId);
 };
 
-window.deleteEmployee = function(empId) {
+window.deleteEmployee = async function(empId) {
     const emp = employees.find(e => e.id === empId);
     if (!emp) return;
     
@@ -1064,11 +914,22 @@ window.deleteEmployee = function(empId) {
 (Lưu ý: Hành động này sẽ chuyển trạng thái của họ sang "Đã nghỉ việc")`);
     
     if (confirmDelete) {
-        emp.status = "Đã nghỉ việc";
-        AppStore.set("employees", employees);
-        logActivity("danger", `Hồ sơ nhân viên <strong>${emp.name}</strong> đã chuyển sang trạng thái <strong>Đã nghỉ việc</strong>.`);
-        showToast(`Đã chuyển trạng thái nhân viên ${emp.name} sang Đã nghỉ việc.`, "warning");
-        renderEmployeeTable();
+        try {
+            const response = await fetch(`${API_BASE}/employees/${empId}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error || "Lỗi khi xóa nhân sự");
+            }
+
+            showToast(`Đã chuyển trạng thái nhân viên ${emp.name} sang Đã nghỉ việc.`, "warning");
+            await loadAllData();
+            renderEmployeeTable();
+        } catch (err) {
+            showToast(err.message, "error");
+        }
     }
 };
 
@@ -1138,12 +999,15 @@ function renderRoleTable() {
     });
 }
 
-function openRoleModal(roleId = null, preselectDept = "") {
+function openRoleModal(roleId = null, defaultDeptName = null) {
     if (!DOM.roleModal) return;
     
     DOM.roleModal.classList.add("open");
     DOM.roleForm.reset();
     DOM.roleFormId.value = "";
+    
+    // Dynamically render department dropdown in role form modal
+    populateDepartmentSelects();
     
     if (roleId) {
         const role = roles.find(r => r.id === roleId);
@@ -1155,8 +1019,8 @@ function openRoleModal(roleId = null, preselectDept = "") {
         DOM.inputRoleDesc.value = role.desc || "";
     } else {
         DOM.roleModalTitle.textContent = "Thêm chức vụ mới";
-        if (preselectDept && DOM.inputRoleDept) {
-            DOM.inputRoleDept.value = preselectDept;
+        if (defaultDeptName && DOM.inputRoleDept) {
+            DOM.inputRoleDept.value = defaultDeptName;
         }
     }
 }
@@ -1165,7 +1029,7 @@ function closeRoleModal() {
     if (DOM.roleModal) DOM.roleModal.classList.remove("open");
 }
 
-function handleRoleFormSubmit(e) {
+async function handleRoleFormSubmit(e) {
     e.preventDefault();
     
     const formId = DOM.roleFormId.value;
@@ -1178,71 +1042,66 @@ function handleRoleFormSubmit(e) {
         return;
     }
     
-    if (formId) {
-        // Edit Mode
-        const roleIndex = roles.findIndex(r => r.id === formId);
-        if (roleIndex > -1) {
-            const oldName = roles[roleIndex].name;
-            roles[roleIndex] = { ...roles[roleIndex], name, dept, desc };
-            
-            // Auto update employees holding this role
-            let updatedCount = 0;
-            employees.forEach(emp => {
-                if (emp.role === oldName) {
-                    emp.role = name;
-                    emp.dept = dept; // sync department
-                    updatedCount++;
-                }
+    try {
+        let response;
+        const payload = { name, dept, desc };
+        
+        if (formId) {
+            // PUT request to API
+            response = await fetch(`${API_BASE}/roles/${formId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
             });
-            
-            if (updatedCount > 0) {
-                AppStore.set("employees", employees);
-                logActivity("info", `Đã đồng bộ cập nhật chức vụ mới cho <strong>${updatedCount}</strong> nhân sự.`);
-            }
-            
-            logActivity("info", `Chức vụ <strong>${name}</strong> đã được cập nhật.`);
-            showToast("Cập nhật chức vụ thành công!", "success");
+        } else {
+            // POST request to API
+            response = await fetch(`${API_BASE}/roles`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
         }
-    } else {
-        // Add Mode
-        const nextIdNum = Math.max(...roles.map(r => parseInt(r.id.replace("CV", ""))), 0) + 1;
-        const newId = `CV${String(nextIdNum).padStart(3, "0")}`;
-        
-        const newRole = { id: newId, name, dept, desc };
-        roles.push(newRole);
-        
-        logActivity("info", `Chức vụ mới <strong>${name}</strong> (${newId}) đã được tạo.`);
-        showToast("Thêm chức vụ mới thành công!", "success");
+
+        if (!response.ok) {
+            const errData = await response.json();
+            throw new Error(errData.error || "Giao dịch không thành công.");
+        }
+
+        showToast(formId ? "Cập nhật chức vụ thành công!" : "Thêm chức vụ mới thành công!", "success");
+        closeRoleModal();
+        await loadAllData();
+        renderRoleTable();
+    } catch (err) {
+        showToast(err.message, "error");
     }
-    
-    AppStore.set("roles", roles);
-    closeRoleModal();
-    renderRoleTable();
 }
 
 window.editRole = function(roleId) {
     openRoleModal(roleId);
 };
 
-window.deleteRole = function(roleId) {
+window.deleteRole = async function(roleId) {
     const role = roles.find(r => r.id === roleId);
     if (!role) return;
     
-    const activeEmps = employees.filter(e => e.role === role.name && e.status !== "Đã nghỉ việc");
-    if (activeEmps.length > 0) {
-        showToast(`Không thể xóa! Có ${activeEmps.length} nhân viên đang đảm nhiệm chức vụ này.`, "error");
-        return;
-    }
-    
     const confirmDelete = confirm(`Bạn có chắc chắn muốn xóa chức vụ "${role.name}"?`);
-    if (confirmDelete) {
-        roles = roles.filter(r => r.id !== roleId);
-        AppStore.set("roles", roles);
-        
-        logActivity("danger", `Chức vụ <strong>${role.name}</strong> đã bị xóa khỏi hệ thống.`);
+    if (!confirmDelete) return;
+    
+    try {
+        const response = await fetch(`${API_BASE}/roles/${roleId}`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) {
+            const errData = await response.json();
+            throw new Error(errData.error || "Không thể xóa chức vụ.");
+        }
+
         showToast(`Đã xóa chức vụ ${role.name}.`, "warning");
-        
+        await loadAllData();
         renderRoleTable();
+    } catch (err) {
+        showToast(err.message, "error");
     }
 };
 
@@ -1271,7 +1130,7 @@ function updateRemainingLeavesBadge() {
     
     const emp = employees.find(e => e.id === empId);
     if (emp) {
-        DOM.empRemainingLeavesBadge.textContent = `${emp.remainingLeaves} ngày`;
+        DOM.empRemainingLeavesBadge.textContent = `${emp.remaining_leaves} ngày`;
     }
 }
 
@@ -1302,7 +1161,7 @@ function calculateLeaveDays() {
     DOM.leaveCalculatedDays.textContent = `${totalDays} ngày`;
 }
 
-function handleLeaveRequestSubmit(e) {
+async function handleLeaveRequestSubmit(e) {
     e.preventDefault();
     
     const empId = DOM.leaveEmpSelect.value;
@@ -1326,57 +1185,39 @@ function handleLeaveRequestSubmit(e) {
         showToast("Ngày kết thúc không hợp lệ!", "error");
         return;
     }
-    
-    if (type === "Nghỉ phép năm" && emp.remainingLeaves < days) {
-        showToast(`Nhân viên chỉ còn ${emp.remainingLeaves} ngày phép năm, không đủ cho yêu cầu ${days} ngày!`, "error");
-        return;
-    }
 
-    const nextIdNum = Math.max(...leaveRequests.map(r => parseInt(r.id.replace("LR", ""))), 0) + 1;
-    const newRequest = {
-        id: `LR${String(nextIdNum).padStart(3, "0")}`,
-        empId,
-        empName: emp.name,
-        empDept: emp.dept,
-        type,
-        startDate,
-        endDate,
-        days,
-        reason,
-        status: "Chờ duyệt",
-        submittedAt: getFormattedNow()
-    };
-    
-    leaveRequests.unshift(newRequest);
-    AppStore.set("leave_requests", leaveRequests);
-    
-    notifications.unshift({
-        id: `n-${Date.now()}`,
-        text: `Yêu cầu phép mới từ ${emp.name} đang chờ duyệt.`,
-        time: "Vừa xong",
-        read: false
-    });
-    AppStore.set("notifications", notifications);
+    try {
+        const response = await fetch(`${API_BASE}/leave-requests`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ emp_id: empId, type, start_date: startDate, end_date: endDate, days, reason })
+        });
 
-    logActivity("warning", `<strong>${emp.name}</strong> gửi đơn xin nghỉ phép <strong>${type}</strong> (${days} ngày).`);
-    showToast("Đã gửi đơn xin nghỉ phép thành công! Đang chờ duyệt.", "success");
-    
-    DOM.leaveRequestForm.reset();
-    DOM.leaveCalculatedDays.textContent = "0 ngày";
-    DOM.empRemainingLeavesBadge.textContent = "0 ngày";
-    
-    renderLeaveHistory();
-    renderNotifications();
-    
-    // Refresh sidebar badge
-    const pendingCount = leaveRequests.filter(r => r.status === "Chờ duyệt").length;
-    if (DOM.pendingBadge) {
-        if (pendingCount > 0) {
-            DOM.pendingBadge.textContent = pendingCount;
-            DOM.pendingBadge.style.display = "inline-block";
-        } else {
-            DOM.pendingBadge.style.display = "none";
+        if (!response.ok) {
+            const errData = await response.json();
+            throw new Error(errData.error || "Gửi đơn không thành công.");
         }
+
+        showToast("Đã gửi đơn xin nghỉ phép thành công! Đang chờ duyệt.", "success");
+        DOM.leaveRequestForm.reset();
+        DOM.leaveCalculatedDays.textContent = "0 ngày";
+        DOM.empRemainingLeavesBadge.textContent = "0 ngày";
+        
+        await loadAllData();
+        renderLeaveHistory();
+        
+        // Refresh sidebar pending approvals badge
+        const pendingCount = leaveRequests.filter(r => r.status === "Chờ duyệt").length;
+        if (DOM.pendingBadge) {
+            if (pendingCount > 0) {
+                DOM.pendingBadge.textContent = pendingCount;
+                DOM.pendingBadge.style.display = "inline-block";
+            } else {
+                DOM.pendingBadge.style.display = "none";
+            }
+        }
+    } catch (err) {
+        showToast(err.message, "error");
     }
 }
 
@@ -1398,13 +1239,13 @@ function renderLeaveHistory() {
         card.className = "history-card";
         card.innerHTML = `
             <div class="history-header">
-                <span class="history-emp-name">${req.empName}</span>
+                <span class="history-emp-name">${req.emp_name}</span>
                 <span class="history-badge ${badgeClass}">${req.status}</span>
             </div>
             <div class="history-details">
                 <div><strong>Loại:</strong> ${req.type}</div>
                 <div><strong>Số ngày:</strong> ${req.days} ngày</div>
-                <div style="grid-column: span 2;"><strong>Thời gian:</strong> ${formatDate(req.startDate)} - ${formatDate(req.endDate)}</div>
+                <div style="grid-column: span 2;"><strong>Thời gian:</strong> ${formatDate(req.start_date)} - ${formatDate(req.end_date)}</div>
             </div>
             <p class="history-reason">"${req.reason}"</p>
         `;
@@ -1428,7 +1269,7 @@ function renderApprovals() {
     }
     
     pendingList.forEach(req => {
-        const initials = req.empName.split(" ").slice(-2).map(n => n[0]).join("").toUpperCase();
+        const initials = req.emp_name.split(" ").slice(-2).map(n => n[0]).join("").toUpperCase();
         
         const card = document.createElement("div");
         card.className = "approval-card";
@@ -1436,14 +1277,14 @@ function renderApprovals() {
             <div class="approval-profile">
                 <div class="employee-avatar">${initials}</div>
                 <div class="approval-info">
-                    <span class="approval-emp-name">${req.empName}</span>
-                    <span class="approval-emp-dept">${req.empId} • <strong>${req.empDept}</strong></span>
+                    <span class="approval-emp-name">${req.emp_name}</span>
+                    <span class="approval-emp-dept">${req.emp_id} • <strong>${req.emp_dept}</strong></span>
                 </div>
             </div>
             
             <div class="approval-dates">
                 <div><strong>Loại phép:</strong> ${req.type}</div>
-                <div><strong>Thời gian nghỉ:</strong> ${formatDate(req.startDate)} đến ${formatDate(req.endDate)}</div>
+                <div><strong>Thời gian nghỉ:</strong> ${formatDate(req.start_date)} đến ${formatDate(req.end_date)}</div>
                 <div><strong>Tổng số ngày nghỉ:</strong> <strong style="color: var(--color-primary)">${req.days} ngày</strong></div>
             </div>
             
@@ -1458,47 +1299,38 @@ function renderApprovals() {
     });
 }
 
-window.decideLeaveRequest = function(reqId, action) {
-    const reqIndex = leaveRequests.findIndex(r => r.id === reqId);
-    if (reqIndex === -1) return;
-    
-    const req = leaveRequests[reqIndex];
-    const emp = employees.find(e => e.id === req.empId);
-    
-    if (action === "approve") {
-        req.status = "Đã duyệt";
-        logActivity("success", `Yêu cầu phép của <strong>${req.empName}</strong> đã được PHÊ DUYỆT (${req.days} ngày).`);
-        showToast(`Đã duyệt đơn xin nghỉ của ${req.empName}!`, "success");
+window.decideLeaveRequest = async function(reqId, action) {
+    const confirmAction = confirm(`Bạn có chắc chắn muốn ${action === "approve" ? "phê duyệt" : "từ chối"} yêu cầu nghỉ phép này?`);
+    if (!confirmAction) return;
+
+    try {
+        const response = await fetch(`${API_BASE}/leave-requests/${reqId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: action === "approve" ? "Đã duyệt" : "Từ chối" })
+        });
+
+        if (!response.ok) {
+            const errData = await response.json();
+            throw new Error(errData.error || "Không thể phê duyệt.");
+        }
+
+        showToast(action === "approve" ? `Đã phê duyệt phép nghỉ thành công!` : `Đã từ chối đơn phép nghỉ.`, "success");
+        await loadAllData();
+        renderApprovals();
         
-        if (emp) {
-            if (req.type === "Nghỉ phép năm") {
-                emp.remainingLeaves = Math.max(0, emp.remainingLeaves - req.days);
-            }
-            const today = new Date().toISOString().split("T")[0];
-            if (today >= req.startDate && today <= req.endDate) {
-                emp.status = "Nghỉ phép";
+        // Refresh sidebar pending count
+        const pendingCount = leaveRequests.filter(r => r.status === "Chờ duyệt").length;
+        if (DOM.pendingBadge) {
+            if (pendingCount > 0) {
+                DOM.pendingBadge.textContent = pendingCount;
+                DOM.pendingBadge.style.display = "inline-block";
+            } else {
+                DOM.pendingBadge.style.display = "none";
             }
         }
-    } else {
-        req.status = "Từ chối";
-        logActivity("danger", `Từ chối yêu cầu nghỉ phép của <strong>${req.empName}</strong>.`);
-        showToast(`Đã từ chối đơn nghỉ phép của ${req.empName}.`, "warning");
-    }
-    
-    AppStore.set("leave_requests", leaveRequests);
-    AppStore.set("employees", employees);
-    
-    renderApprovals();
-    
-    // Refresh sidebar badge
-    const pendingCount = leaveRequests.filter(r => r.status === "Chờ duyệt").length;
-    if (DOM.pendingBadge) {
-        if (pendingCount > 0) {
-            DOM.pendingBadge.textContent = pendingCount;
-            DOM.pendingBadge.style.display = "inline-block";
-        } else {
-            DOM.pendingBadge.style.display = "none";
-        }
+    } catch (err) {
+        showToast(err.message, "error");
     }
 };
 
@@ -1540,14 +1372,7 @@ function renderNotifications() {
 
 // --- UTILITY FUNCTIONS ---
 function logActivity(type, text) {
-    const newAct = {
-        id: `act-${Date.now()}`,
-        type,
-        text,
-        time: "Vừa xong"
-    };
-    activities.unshift(newAct);
-    AppStore.set("activities", activities);
+    // Activities are handled on the server side via transactions, but we can log client side events if needed
 }
 
 function showToast(message, type = "success") {

@@ -1,65 +1,100 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { AppStore } from '../utils/storage';
-import { 
-    DEFAULT_EMPLOYEES, 
-    DEFAULT_LEAVE_REQUESTS, 
-    DEFAULT_ROLES, 
-    DEFAULT_DEPARTMENTS, 
-    DEFAULT_ACTIVITIES 
-} from '../utils/mockData';
 
 const HRContext = createContext();
 
 export const HRProvider = ({ children }) => {
-    const [employees, setEmployees] = useState(() => 
-        AppStore.get("employees", DEFAULT_EMPLOYEES)
-    );
-    const [leaveRequests, setLeaveRequests] = useState(() =>
-        AppStore.get("leave_requests", DEFAULT_LEAVE_REQUESTS)
-    );
-    const [roles, setRoles] = useState(() =>
-        AppStore.get("roles", DEFAULT_ROLES)
-    );
-    const [departments, setDepartments] = useState(() =>
-        AppStore.get("departments", DEFAULT_DEPARTMENTS)
-    );
-    const [activities, setActivities] = useState(() =>
-        AppStore.get("activities", DEFAULT_ACTIVITIES)
-    );
-    const [notifications, setNotifications] = useState(() =>
-        AppStore.get("notifications", [
-            { id: "n-1", text: "Yêu cầu phép mới từ Nguyễn Minh Tuấn đang chờ duyệt.", time: "08:15", read: false },
-            { id: "n-2", text: "Yêu cầu phép mới từ Phạm Thanh Hương đang chờ duyệt.", time: "14:45", read: false }
-        ])
-    );
+    const [employees, setEmployees] = useState([]);
+    const [leaveRequests, setLeaveRequests] = useState([]);
+    const [roles, setRoles] = useState([]);
+    const [departments, setDepartments] = useState([]);
+    const [activities, setActivities] = useState([]);
+    const [notifications, setNotifications] = useState(() => {
+        try {
+            const saved = localStorage.getItem("notifications");
+            return saved ? JSON.parse(saved) : [
+                { id: "n-1", text: "Yêu cầu phép mới từ Nguyễn Minh Tuấn đang chờ duyệt.", time: "08:15", read: false },
+                { id: "n-2", text: "Yêu cầu phép mới từ Phạm Thanh Hương đang chờ duyệt.", time: "14:45", read: false }
+            ];
+        } catch (e) {
+            return [];
+        }
+    });
     const [theme, setTheme] = useState(() => 
         localStorage.getItem("hr_portal_theme") || "light"
     );
     const [toast, setToast] = useState(null);
 
-    // Persist data to localStorage whenever state changes
-    useEffect(() => {
-        AppStore.set("employees", employees);
-    }, [employees]);
+    const API_BASE = 'http://localhost:3000/api';
+
+    // Helper functions for mapping
+    const mapEmployeeToCamelCase = (emp) => ({
+        id: emp.id,
+        name: emp.name,
+        gender: emp.gender,
+        email: emp.email,
+        phone: emp.phone,
+        dept: emp.dept,
+        role: emp.role,
+        joinDate: emp.join_date,
+        salary: emp.salary,
+        totalLeaves: emp.total_leaves,
+        remainingLeaves: emp.remaining_leaves,
+        status: emp.status
+    });
+
+    const mapLeaveRequestToCamelCase = (req) => ({
+        id: req.id,
+        empId: req.emp_id,
+        empName: req.emp_name,
+        empDept: req.emp_dept,
+        type: req.type,
+        startDate: req.start_date,
+        endDate: req.end_date,
+        days: req.days,
+        reason: req.reason,
+        status: req.status,
+        submittedAt: req.submitted_at
+    });
+
+    // Fetch all data from API
+    const loadAllData = async () => {
+        try {
+            const [empRes, leaveRes, actRes, roleRes, deptRes] = await Promise.all([
+                fetch(`${API_BASE}/employees`),
+                fetch(`${API_BASE}/leave-requests`),
+                fetch(`${API_BASE}/activities`),
+                fetch(`${API_BASE}/roles`),
+                fetch(`${API_BASE}/departments`)
+            ]);
+
+            if (!empRes.ok || !leaveRes.ok || !actRes.ok || !roleRes.ok || !deptRes.ok) {
+                throw new Error("Mất kết nối đến cơ sở dữ liệu backend!");
+            }
+
+            const empData = await empRes.json();
+            const leaveData = await leaveRes.json();
+            const actData = await actRes.json();
+            const roleData = await roleRes.json();
+            const deptData = await deptRes.json();
+
+            setEmployees(empData.map(mapEmployeeToCamelCase));
+            setLeaveRequests(leaveData.map(mapLeaveRequestToCamelCase));
+            setActivities(actData);
+            setRoles(roleData);
+            setDepartments(deptData);
+        } catch (error) {
+            console.error("Error loading data from API:", error);
+            showToast("Không thể kết nối đến máy chủ API backend!", "error");
+        }
+    };
 
     useEffect(() => {
-        AppStore.set("leave_requests", leaveRequests);
-    }, [leaveRequests]);
+        loadAllData();
+    }, []);
 
+    // Persist notifications
     useEffect(() => {
-        AppStore.set("roles", roles);
-    }, [roles]);
-
-    useEffect(() => {
-        AppStore.set("departments", departments);
-    }, [departments]);
-
-    useEffect(() => {
-        AppStore.set("activities", activities);
-    }, [activities]);
-
-    useEffect(() => {
-        AppStore.set("notifications", notifications);
+        localStorage.setItem("notifications", JSON.stringify(notifications));
     }, [notifications]);
 
     // Apply theme
@@ -68,86 +103,282 @@ export const HRProvider = ({ children }) => {
         localStorage.setItem("hr_portal_theme", theme);
     }, [theme]);
 
-    const addEmployee = (employee) => {
-        setEmployees([...employees, employee]);
-        addActivity("success", `Nhân viên mới ${employee.name} được thêm vào hệ thống.`);
+    const showToast = (message, type = "info") => {
+        setToast({ message, type });
+        setTimeout(() => setToast(null), 3000);
     };
 
-    const updateEmployee = (id, updatedData) => {
-        setEmployees(employees.map(emp => emp.id === id ? { ...emp, ...updatedData } : emp));
-        addActivity("info", `Thông tin nhân viên ${updatedData.name || 'đã được'} cập nhật.`);
-    };
+    const addEmployee = async (employee) => {
+        try {
+            const response = await fetch(`${API_BASE}/employees`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: employee.name,
+                    gender: employee.gender,
+                    email: employee.email,
+                    phone: employee.phone,
+                    dept: employee.dept,
+                    role: employee.role,
+                    join_date: employee.joinDate,
+                    salary: employee.salary,
+                    total_leaves: employee.totalLeaves,
+                    status: employee.status
+                })
+            });
 
-    const deleteEmployee = (id) => {
-        const emp = employees.find(e => e.id === id);
-        setEmployees(employees.filter(e => e.id !== id));
-        if (emp) addActivity("warning", `Nhân viên ${emp.name} đã bị xóa.`);
-    };
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error || "Thêm nhân viên thất bại");
+            }
 
-    const addLeaveRequest = (request) => {
-        setLeaveRequests([...leaveRequests, request]);
-        addActivity("warning", `Yêu cầu nghỉ phép từ ${request.empName} đang chờ duyệt.`);
-        addNotification(`Yêu cầu phép mới từ ${request.empName} đang chờ duyệt.`);
-    };
-
-    const updateLeaveRequest = (id, updatedData) => {
-        setLeaveRequests(leaveRequests.map(req => req.id === id ? { ...req, ...updatedData } : req));
-    };
-
-    const approveLeaveRequest = (id) => {
-        const request = leaveRequests.find(r => r.id === id);
-        if (request) {
-            updateLeaveRequest(id, { status: "Đã duyệt" });
-            addActivity("success", `Yêu cầu nghỉ phép của ${request.empName} đã được phê duyệt.`);
+            showToast(`Nhân viên mới ${employee.name} được thêm thành công!`, "success");
+            await loadAllData();
+        } catch (error) {
+            showToast(error.message, "error");
         }
     };
 
-    const rejectLeaveRequest = (id) => {
-        const request = leaveRequests.find(r => r.id === id);
-        if (request) {
-            updateLeaveRequest(id, { status: "Bị từ chối" });
-            addActivity("warning", `Yêu cầu nghỉ phép của ${request.empName} đã bị từ chối.`);
+    const updateEmployee = async (id, updatedData) => {
+        try {
+            const response = await fetch(`${API_BASE}/employees/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: updatedData.name,
+                    gender: updatedData.gender,
+                    email: updatedData.email,
+                    phone: updatedData.phone,
+                    dept: updatedData.dept,
+                    role: updatedData.role,
+                    join_date: updatedData.joinDate,
+                    salary: updatedData.salary,
+                    total_leaves: updatedData.totalLeaves,
+                    status: updatedData.status
+                })
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error || "Cập nhật nhân viên thất bại");
+            }
+
+            showToast(`Cập nhật thông tin nhân viên ${updatedData.name || ''} thành công!`, "success");
+            await loadAllData();
+        } catch (error) {
+            showToast(error.message, "error");
         }
     };
 
-    const addRole = (role) => {
-        setRoles([...roles, role]);
-        addActivity("success", `Chức vụ mới ${role.name} được thêm vào.`);
+    const deleteEmployee = async (id) => {
+        try {
+            const response = await fetch(`${API_BASE}/employees/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error || "Xóa nhân viên thất bại");
+            }
+
+            showToast("Hồ sơ nhân viên đã được chuyển thành Đã nghỉ việc.", "warning");
+            await loadAllData();
+        } catch (error) {
+            showToast(error.message, "error");
+        }
     };
 
-    const updateRole = (id, updatedData) => {
-        setRoles(roles.map(role => role.id === id ? { ...role, ...updatedData } : role));
+    const addLeaveRequest = async (request) => {
+        try {
+            const response = await fetch(`${API_BASE}/leave-requests`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    emp_id: request.empId,
+                    type: request.type,
+                    start_date: request.startDate,
+                    end_date: request.endDate,
+                    days: request.days,
+                    reason: request.reason
+                })
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error || "Gửi yêu cầu nghỉ phép thất bại");
+            }
+
+            showToast(`Gửi yêu cầu nghỉ phép từ ${request.empName} thành công!`, "success");
+            addNotification(`Yêu cầu phép mới từ ${request.empName} đang chờ duyệt.`);
+            await loadAllData();
+        } catch (error) {
+            showToast(error.message, "error");
+        }
     };
 
-    const deleteRole = (id) => {
-        const role = roles.find(r => r.id === id);
-        setRoles(roles.filter(r => r.id !== id));
-        if (role) addActivity("warning", `Chức vụ ${role.name} đã bị xóa.`);
+    const updateLeaveRequest = async (id, updatedData) => {
+        try {
+            const response = await fetch(`${API_BASE}/leave-requests/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    status: updatedData.status
+                })
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error || "Cập nhật yêu cầu thất bại");
+            }
+
+            await loadAllData();
+        } catch (error) {
+            showToast(error.message, "error");
+        }
     };
 
-    const addDepartment = (department) => {
-        setDepartments([...departments, department]);
-        addActivity("success", `Phòng ban mới ${department.name} được thêm vào.`);
+    const approveLeaveRequest = async (id) => {
+        await updateLeaveRequest(id, { status: "Đã duyệt" });
+        showToast("Yêu cầu nghỉ phép đã được phê duyệt.", "success");
     };
 
-    const updateDepartment = (id, updatedData) => {
-        setDepartments(departments.map(dept => dept.id === id ? { ...dept, ...updatedData } : dept));
+    const rejectLeaveRequest = async (id) => {
+        await updateLeaveRequest(id, { status: "Từ chối" });
+        showToast("Yêu cầu nghỉ phép đã bị từ chối.", "warning");
     };
 
-    const deleteDepartment = (id) => {
-        const dept = departments.find(d => d.id === id);
-        setDepartments(departments.filter(d => d.id !== id));
-        if (dept) addActivity("warning", `Phòng ban ${dept.name} đã bị xóa.`);
+    const addRole = async (role) => {
+        try {
+            const response = await fetch(`${API_BASE}/roles`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: role.name,
+                    dept: role.dept,
+                    desc: role.desc
+                })
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error || "Thêm chức vụ thất bại");
+            }
+
+            showToast(`Chức vụ mới ${role.name} được thêm thành công!`, "success");
+            await loadAllData();
+        } catch (error) {
+            showToast(error.message, "error");
+        }
     };
 
-    const addActivity = (type, text) => {
-        const newActivity = {
-            id: `act-${Date.now()}`,
-            type,
-            text,
-            time: "Vừa xong"
-        };
-        setActivities([newActivity, ...activities.slice(0, 9)]);
+    const updateRole = async (id, updatedData) => {
+        try {
+            const response = await fetch(`${API_BASE}/roles/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: updatedData.name,
+                    dept: updatedData.dept,
+                    desc: updatedData.desc
+                })
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error || "Cập nhật chức vụ thất bại");
+            }
+
+            showToast(`Cập nhật chức vụ ${updatedData.name || ''} thành công!`, "success");
+            await loadAllData();
+        } catch (error) {
+            showToast(error.message, "error");
+        }
+    };
+
+    const deleteRole = async (id) => {
+        try {
+            const response = await fetch(`${API_BASE}/roles/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error || "Xóa chức vụ thất bại");
+            }
+
+            showToast("Đã xóa chức vụ thành công.", "warning");
+            await loadAllData();
+        } catch (error) {
+            showToast(error.message, "error");
+        }
+    };
+
+    const addDepartment = async (department) => {
+        try {
+            const response = await fetch(`${API_BASE}/departments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: department.name,
+                    desc: department.desc
+                })
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error || "Thêm phòng ban thất bại");
+            }
+
+            showToast(`Phòng ban mới ${department.name} được thêm thành công!`, "success");
+            await loadAllData();
+        } catch (error) {
+            showToast(error.message, "error");
+        }
+    };
+
+    const updateDepartment = async (id, updatedData) => {
+        try {
+            const response = await fetch(`${API_BASE}/departments/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: updatedData.name,
+                    desc: updatedData.desc
+                })
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error || "Cập nhật phòng ban thất bại");
+            }
+
+            showToast(`Cập nhật phòng ban ${updatedData.name || ''} thành công!`, "success");
+            await loadAllData();
+        } catch (error) {
+            showToast(error.message, "error");
+        }
+    };
+
+    const deleteDepartment = async (id) => {
+        try {
+            const response = await fetch(`${API_BASE}/departments/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error || "Xóa phòng ban thất bại");
+            }
+
+            showToast("Đã xóa phòng ban thành công.", "warning");
+            await loadAllData();
+        } catch (error) {
+            showToast(error.message, "error");
+        }
+    };
+
+    const addActivity = async (type, text) => {
+        await loadAllData();
     };
 
     const addNotification = (text) => {
@@ -166,11 +397,6 @@ export const HRProvider = ({ children }) => {
 
     const toggleTheme = () => {
         setTheme(theme === "light" ? "dark" : "light");
-    };
-
-    const showToast = (message, type = "info") => {
-        setToast({ message, type });
-        setTimeout(() => setToast(null), 3000);
     };
 
     const value = {
